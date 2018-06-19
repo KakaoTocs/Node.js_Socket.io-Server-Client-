@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 
-const newID = new mongoose.Schema({
-  Id: String
+// var newID = mongoose.Schema({
+//   id: Number
+// });
+var newID = new mongoose.Schema({
+  id: Number
 });
 
 module.exports = mongoose.model('newID', newID);

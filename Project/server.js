@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 mongoose.connect('mongodb://127.0.0.1:27017/AndroidProject');
 const db = mongoose.connection;
 
+console.log(mongoose.Schema.newID.find())
 db.on('error', (error) => {
   console.log('DB Connection Failed!');
   console.log('Log: ' + error);
@@ -34,12 +35,20 @@ app.use('/user', user);
 
 io.on('connection', (socket) => {
   console.log("Socket Info: " + socket.id);
+  socket.on('hi', () => {
+    console.log("C# Client connected");
+  });
+
   socket.emit('direct', 'many client');
 
   socket.on('join', (data) => {
     socket.join(data.id);
     console.log("Join client");
     socket.in(data.id).emit('direct', 'one client');
+  });
+
+  socket.on('hi', () => {
+    console.log("C# Client connected");
   });
 
   socket.on('input', (data) => {
