@@ -5,10 +5,9 @@ const io = require('socket.io')(server);
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
-mongoose.connect('mongodb://127.0.0.1:27017/AndroidProject');
-const db = mongoose.connection;
+mongoose.connect('mongodb://127.0.0.1:27017/AndroidProject', {useMongoClient: true});
+var db = mongoose.connection;
 
-console.log(mongoose.Schema.newID.find())
 db.on('error', (error) => {
   console.log('DB Connection Failed!');
   console.log('Log: ' + error);
@@ -19,18 +18,15 @@ db.once('open', () => {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
-/*
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
-  next();
+
+app.get("/", (req, res) => {
+  res.status(200).json({code: 200, message: "succese"});
 });
-*/
 
 const user = require('./routes/user.js')(db);
 app.use('/user', user);
+const admin = require('./routes/admin.js')(db);
+app.use('/admin', admin);
 
 
 io.on('connection', (socket) => {

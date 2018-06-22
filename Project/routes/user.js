@@ -1,25 +1,65 @@
 const express = require('express');
 const router = express.Router();
 const newID = require('./../models/newID');
+const user = require('./../models/user');
 
 module.exports = (db) => {
+  // Client에서 사용할 ID 부여
   router.get('/new', (req, res) => {
-    newID.find(function(err, ids){
+    newID.find((err, ids) => {
+
       if(err) {
         console.log(">>newID: " + err);
-        res.status(400).json({code: 400, message: "get newID fail"});
+        res.status(400).json({code: 400, message: "fail"});
       } else {
-        console.log('give newID: ' + ids);
-        const result = {
-          newID: ids
-        };
-        res.status(200).json(result);
+        var query = {id: ids[0].id};
+        var operator = {id: ids[0].id + 1};
+        var option = {upsert: true};
+        db.collection('newids').update(query, operator, option, (err, upserted) => {
+          if(err){
+            console.log(">>newID Update: " + err);
+            res.status(400).json({code: 400, message: "fail"});
+          }else{
+            console.log('give newID: ' + ids);
+            const result = {
+              id: ids[0].id
+            };
+            res.status(200).json(result);
+          }
+        });
       }
     });
   });
 
-  router.get('/log', (req, res) => {
-    res.status(200).json([{processName: "github"}, {processName: "iTunes"}]);
+// MongoDB서버 연결 확인용(실제로 값을 추가 할 일은 없음)
+  router.post('/create', (req, res) => {
+    var newUser = new user();
+    newUser.id = req.body.id;
+
+    newUser.save((err) => {
+      if(err){
+        console.log(">>new user create: "+err);
+        res.status(400).json({code: 400, message: "fail"});
+      }else{
+        console.log('new user Inserted!');
+        res.status(200).json({code: 200, message: "succese"});
+      }
+    });
+  });
+
+  router.get('/log/:id', (req, res) => {
+    user.findOne({id: req.params.id}, (err, user) => {
+      if(err){
+        console.log(">>userLog: " + err);
+        res.status(400).json({code: 400, message: "fail"});
+      }else{
+        console.log('give user log: '+user.logs);
+        const result = {
+          log: user.logs
+        };
+        res.status(200).json(result);
+      }
+    });
   });
 
   return router;
