@@ -59,7 +59,7 @@ module.exports = (db) => {
           // var list = ;
           // list.concat(user);
           admins.userList.push(user);
-          console.log(admins.userList);
+          // console.log(admins.userList);
           var query = {id: req.body.adminID};
           var operator = {id: admins.id, pw: admins.pw, userList: admins.userList};
           var option = {upsert: true};
@@ -83,11 +83,16 @@ module.exports = (db) => {
         console.log(">>Admin in User list: " + err);
         res.status(400).json({code: 400, message: "fail"});
       } else {
-        console.log("Admin in User list: " + admins.userList);
-        const result = {
-          userList: admins.userList
-        };
-        res.status(200).json(result);
+        if(admins == null) {
+          console.log("Admin in User list: No Admin ID");
+          res.status(400).json({code: 400, message: "fail"});
+        } else {
+          console.log("Admin in User list: " + admins.userList);
+          const result = {
+            userList: admins.userList
+          };
+          res.status(200).json(result);
+        }
       }
     });
   });

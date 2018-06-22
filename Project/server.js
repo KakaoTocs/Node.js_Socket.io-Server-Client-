@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {path: '/process'});
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
@@ -19,44 +19,16 @@ db.once('open', () => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
-app.get("/", (req, res) => {
-  res.status(200).json({code: 200, message: "succese"});
-});
-
+const main = require("./routes/main.js")(db, io);
+app.use('/', main);
 const user = require('./routes/user.js')(db);
 app.use('/user', user);
 const admin = require('./routes/admin.js')(db);
 app.use('/admin', admin);
 
 
-io.on('connection', (socket) => {
-  console.log("Socket Info: " + socket.id);
-  socket.on('hi', () => {
-    console.log("C# Client connected");
-  });
-
-  socket.emit('direct', 'many client');
-
-  socket.on('join', (data) => {
-    socket.join(data.id);
-    console.log("Join client");
-    socket.in(data.id).emit('direct', 'one client');
-  });
-
-  socket.on('hi', () => {
-    console.log("C# Client connected");
-  });
-
-  socket.on('input', (data) => {
-    console.log("Get data:", data);
-    socket.emit(data);
-  });
-
-  socket.on('disconnect', () => {
-    console.log("Client disconnected!");
-    console.log("Socket Info: " + socket.id);
-  });
-});
+// const process = require('./routes/process.js')(db, io);
+// app.use('/process', process);
 
 server.listen(80, () => {
   console.log('listening on : 80');

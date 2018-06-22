@@ -31,7 +31,6 @@ module.exports = (db) => {
     });
   });
 
-// MongoDB서버 연결 확인용(실제로 값을 추가 할 일은 없음)
   router.post('/create', (req, res) => {
     var newUser = new user();
     newUser.id = req.body.id;
@@ -48,16 +47,53 @@ module.exports = (db) => {
   });
 
   router.get('/log/:id', (req, res) => {
-    user.findOne({id: req.params.id}, (err, user) => {
+    user.findOne({id: req.params.id}, (err, users) => {
+      console.log(users);
       if(err){
         console.log(">>userLog: " + err);
         res.status(400).json({code: 400, message: "fail"});
       }else{
-        console.log('give user log: '+user.logs);
-        const result = {
-          log: user.logs
-        };
-        res.status(200).json(result);
+        if(users == null) {
+          console.log("give user log: No User ID");
+          res.status(400).json({code: 400, message: "fail"});
+        } else {
+          console.log('give user log: '+users);
+          const result = {
+            log: users.logs
+          };
+          res.status(200).json(result);
+        }
+      }
+    });
+  });
+
+  router.post('/log/add', (req, res) => {
+    user.findOne({id: req.body.id}, (err, users) => {
+      if(err){
+        console.log(">>userLog add: " + err);
+        res.status(400).json({code: 400, message: "fail"});
+      }else{
+        if(users == null) {
+          console.log("add user log: No User ID");
+          res.status(400).json({code: 400, message: "fail"});
+        } else {
+          for(var i=0; i<req.body.logs.length; i++) {
+            users.logs.push(req.body.logs[i]);
+          }
+          console.log(users.logs);
+          var query = {id: users.id};
+          var operator = {id: users.id, logs: users.logs};
+          var option = {upsert: true};
+          db.collection('users').update(query, operator, option, (err, upserted) => {
+            if(err) {
+                console.log(">>Update User log: " + err);
+                res.status(400).json({code: 400, message: "fail"});
+            } else {
+              // console.log("Update User log: " + users.logs);
+              res.status(200).json({code: 200, message: "succese"});
+            }
+          });
+        }
       }
     });
   });

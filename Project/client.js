@@ -1,9 +1,7 @@
 const io = require('socket.io-client');
 
-const socket = io("http://127.0.0.1:80");
+const socket = io("http://10.80.161.231:80", {path: '/process'});
 // const socket = io('http://localhost');
-
-socket.emit('join', {id: 'number1'});
 
 socket.on('connect', () => {
   console.log("Hello");
