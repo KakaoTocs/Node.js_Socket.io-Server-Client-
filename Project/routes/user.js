@@ -80,7 +80,6 @@ module.exports = (db) => {
           for(var i=0; i<req.body.logs.length; i++) {
             users.logs.push(req.body.logs[i]);
           }
-          console.log(users.logs);
           var query = {id: users.id};
           var operator = {id: users.id, logs: users.logs};
           var option = {upsert: true};
@@ -89,7 +88,10 @@ module.exports = (db) => {
                 console.log(">>Update User log: " + err);
                 res.status(400).json({code: 400, message: "fail"});
             } else {
-              // console.log("Update User log: " + users.logs);
+              console.log("Update User log:");
+              for(var i=0; i<req.body.logs.length; i++) {
+                console.log("id: "+req.body.logs[i].processId + " name: " + req.body.logs[i].processName + " time: " + req.body.logs[i].time + " action: " + req.body.logs[i].action + " _type: " + req.body.logs[i]._type);
+              }
               res.status(200).json({code: 200, message: "succese"});
             }
           });

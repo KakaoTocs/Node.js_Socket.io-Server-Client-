@@ -1,11 +1,11 @@
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const io = require('socket.io')(server, {path: '/process'});
+const io = require('socket.io')(server);
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
-mongoose.connect('mongodb://127.0.0.1:27017/AndroidProject', {useMongoClient: true});
+mongoose.connect('mongodb://192.168.0.9:27017/AndroidProject', {useMongoClient: true});
 var db = mongoose.connection;
 
 db.on('error', (error) => {
@@ -30,6 +30,6 @@ app.use('/admin', admin);
 // const process = require('./routes/process.js')(db, io);
 // app.use('/process', process);
 
-server.listen(80, () => {
-  console.log('listening on : 80');
+server.listen(process.env.PORT || 8000, () => {
+  console.log('listening on : 8000');
 });

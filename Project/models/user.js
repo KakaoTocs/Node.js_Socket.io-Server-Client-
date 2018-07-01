@@ -7,8 +7,7 @@ var user = mongoose.Schema({
     processName: String,
     time: String,
     action: Number,
-    _type: Number,
-    block: Boolean
+    _type: Number
   }],
 });
 
